@@ -26,4 +26,5 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "actions-user"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Auto updated submodule references" && git push || echo "No changes to commit"
