@@ -32,6 +32,8 @@ RUN npx turbo prune --scope=@calcom/web --docker
 RUN yarn install
 RUN yarn db-deploy
 RUN yarn --cwd packages/prisma seed-app-store
+# Build and make embed servable from web/public/embed folder
+RUN yarn --cwd packages/embeds/embed-core workspace @calcom/embed-core run build
 RUN yarn --cwd apps/web workspace @calcom/web run build
 
 # RUN yarn plugin import workspace-tools && \
@@ -45,8 +47,9 @@ ARG NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
 
 ENV NODE_ENV production
 
-COPY calcom/package.json calcom/.yarnrc.yml calcom/yarn.lock calcom/turbo.json ./
+COPY calcom/package.json calcom/.yarnrc.yml calcom/turbo.json ./
 COPY calcom/.yarn ./.yarn
+COPY --from=builder /calcom/yarn.lock ./yarn.lock
 COPY --from=builder /calcom/node_modules ./node_modules
 COPY --from=builder /calcom/packages ./packages
 COPY --from=builder /calcom/apps/web ./apps/web
