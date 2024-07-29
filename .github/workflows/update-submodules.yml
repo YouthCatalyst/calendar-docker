@@ -1,7 +1,8 @@
 name: Update Calendso
 on:
   repository_dispatch:
-    - update-cal-submodule
+    types:
+      - update-cal-submodule
   workflow_dispatch: ~
 
 jobs:
