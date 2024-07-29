@@ -1,7 +1,7 @@
 name: Update Calendso
 on:
-  schedule:
-    - cron: "0 4 * * *"
+  repository_dispatch:
+    - update-cal-submodule
   workflow_dispatch: ~
 
 jobs:
