@@ -15,6 +15,11 @@ on:
       - completed
   # Allow running workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build on'
+        type: string
+        default: main
     # Uncomment below to allow specific version workflow run
     # inputs:
     #   version:
@@ -50,9 +55,15 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Git submodule update
+      - name: Fetch git repo
+        id: fetch-git
         run: |
-          git submodule update --init
+          rm -rf calcom
+          mkdir calcom
+          cd calcom
+          BRANCH=${{ inputs.branch }}
+          git clone -b $BRANCH git@github.com:YouthCatalyst/calendar.git .
+          echo "git-branch=${BRANCH#RELEASE/}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to the Docker Hub registry
         uses: docker/login-action@v3
@@ -80,6 +91,7 @@ jobs:
           # Add flavor latest only on full releases, not on pre-releases
           flavor: |
             latest=${{ !github.event.release.prerelease }}
+            type=raw,value=${{ steps.fetch-git.outputs.git-branch }}
 
       - name: Copy env
         run: |
