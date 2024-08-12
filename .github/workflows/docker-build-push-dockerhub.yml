@@ -55,14 +55,23 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Fetch git repo
-        id: fetch-git
-        run: |
+      - name: Delete submodule
+        run: | 
           rm -rf calcom
           mkdir calcom
-          cd calcom
+
+      - name: Fetch git repo
+        uses: actions/checkout@v4
+        with:
+          repository: YouthCatalyst/calendar
+          ref: ${{ inputs.branch }}
+          path: calcom
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Get Cal repo branch
+        id: get-branch
+        run: |
           BRANCH=${{ inputs.branch }}
-          git clone -b $BRANCH git@github.com:YouthCatalyst/calendar.git .
           echo "git-branch=${BRANCH#RELEASE/}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to the Docker Hub registry
@@ -91,7 +100,7 @@ jobs:
           # Add flavor latest only on full releases, not on pre-releases
           flavor: |
             latest=${{ !github.event.release.prerelease }}
-            type=raw,value=${{ steps.fetch-git.outputs.git-branch }}
+            type=raw,value=${{ steps.get-branch.outputs.git-branch }}
 
       - name: Copy env
         run: |
